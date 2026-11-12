@@ -1,0 +1,739 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" href="data:," />
+<title>BioNet Harvest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f2f5ef; --surface:#ffffff; --surface2:#e9efe4; --ink:#17251c; --muted:#5a6b5e;
+  --line:#d5ddcf; --green:#22703f; --green-dark:#174c2b; --leaf:#3d9a5f;
+  --amber:#c47b12; --amber-bg:#fdf1da; --red:#b3372a; --red-bg:#fbe7e3;
+  --ok-bg:#e2f2e4; --shadow:0 1px 3px rgba(23,37,28,.08),0 8px 24px rgba(23,37,28,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#10160f; --surface:#1a231a; --surface2:#232e22; --ink:#e8f0e6; --muted:#a3b5a2;
+    --line:#33402f; --green:#5cc07c; --green-dark:#8fd6a5; --leaf:#4fae6d;
+    --amber:#e8a83e; --amber-bg:#3a2d12; --red:#e07a6c; --red-bg:#3d201b;
+    --ok-bg:#1d3320; --shadow:0 1px 3px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.3);
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Manrope",system-ui,sans-serif;line-height:1.4}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace}
+.wrap{max-width:1180px;margin:0 auto;padding:18px 16px 40px}
+button,select,input:not([type="checkbox"]){min-height:44px}
+.top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px}
+.top h1{margin:0;font-size:30px;font-weight:800;letter-spacing:-.02em}
+.live-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;font-size:13px;font-weight:700;background:var(--surface);border:1px solid var(--line);color:var(--ink)}
+.pill .dot{width:9px;height:9px;border-radius:50%;background:var(--amber);flex:none}
+.pill.on .dot{background:#58d68a;animation:pulse 2s infinite}
+.pill.off .dot{background:var(--red)}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(88,214,138,.55)}70%{box-shadow:0 0 0 8px rgba(88,214,138,0)}100%{box-shadow:0 0 0 0 rgba(88,214,138,0)}}
+@media (prefers-reduced-motion: reduce){.pill.on .dot{animation:none}}
+.demo-flag{display:none;background:var(--amber);color:#1d1403;font-weight:800;border-radius:10px;padding:8px 14px;margin-bottom:14px;font-size:14px;text-align:center;letter-spacing:.08em}
+.demo-flag.show{display:block}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+@media (max-width:900px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.g3,.g4,.g2{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow)}
+.card h2{margin:0 0 10px;font-size:17px;font-weight:800}
+.card h3{margin:0;font-size:15px;font-weight:800}
+.big{font-size:40px;font-weight:800;line-height:1;letter-spacing:-.02em}
+.big small{font-size:17px;color:var(--muted);font-weight:700}
+.rows{display:grid;gap:6px;margin-top:12px;font-size:14px}
+.rows div{display:flex;justify-content:space-between;gap:12px;border-top:1px dashed var(--line);padding-top:6px}
+.rows div:first-child{border-top:none;padding-top:0}
+.rows b{font-weight:700;text-align:right}
+.shade-visual{border-radius:12px;padding:14px;text-align:center;font-weight:800;font-size:22px;margin:4px 0 12px}
+.shade-open{background:var(--amber-bg);color:var(--amber)}
+.shade-closed{background:var(--surface2);color:var(--green-dark)}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{flex:1 1 30%;min-width:80px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:10px 6px;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:#fff}
+.btn{display:inline-flex;align-items:center;justify-content:center;border:none;border-radius:10px;padding:10px 16px;font:inherit;font-weight:800;cursor:pointer;background:var(--green);color:#fff}
+.btn.secondary{background:var(--surface2);color:var(--ink);border:1px solid var(--line)}
+.btn.warn{background:var(--amber);color:#1d1403}
+label.field{display:block;font-size:13px;font-weight:700;margin-bottom:10px}
+label.field span{display:block;color:var(--muted);font-weight:600;margin-bottom:5px}
+input[type="text"],input[type="number"]{width:100%;padding:9px 11px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font:inherit}
+canvas.chart{width:100%;height:150px;display:block}
+.chart-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+.health-banner{border-radius:14px;padding:18px;border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow);margin-bottom:14px}
+.health-banner .overall{font-size:clamp(24px,4vw,32px);font-weight:800;line-height:1.1}
+.health-banner.bien{background:var(--ok-bg);border-color:var(--leaf)}
+.health-banner.atencion{background:var(--amber-bg);border-color:var(--amber)}
+.health-banner.mal{background:var(--red-bg);border-color:var(--red)}
+.health-banner ul{margin:10px 0 0;padding-left:20px;display:grid;gap:4px;font-size:15px}
+.health-banner ul:empty{display:none}
+.badge{display:inline-flex;align-items:center;padding:4px 10px;border-radius:999px;font-size:12.5px;font-weight:800;white-space:nowrap;background:var(--surface2);color:var(--muted);border:1px solid var(--line)}
+.badge.bien{background:var(--ok-bg);color:var(--green);border-color:var(--leaf)}
+.badge.atencion{background:var(--amber-bg);color:var(--amber);border-color:var(--amber)}
+.badge.mal{background:var(--red-bg);color:var(--red);border-color:var(--red)}
+.health-card canvas.chart{height:160px;margin-top:10px}
+.range-edit{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:13px;font-weight:700;margin-top:10px;border-top:1px dashed var(--line);padding-top:10px;color:var(--muted)}
+.range-edit input{width:74px;min-height:36px!important;padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:inherit;font-weight:700}
+.cell-mini{background:var(--surface2);border-radius:12px;padding:12px 14px}
+.cell-mini b{display:block;font-size:14px}
+.cell-mini .v{font-size:24px;font-weight:800}
+details.code-box{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow)}
+details.code-box summary{font-size:17px;font-weight:800;cursor:pointer;min-height:44px;display:flex;align-items:center}
+pre.code{background:#1c2a1e;color:#d8ecd8;border-radius:12px;padding:14px;overflow:auto;font-size:12.5px;line-height:1.55;max-height:520px}
+.sub{color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <h1>BioNet Harvest</h1>
+    <div class="live-row">
+      <span class="pill" id="pill-esp"><span class="dot"></span><span id="pill-esp-txt">ESP32: —</span></span>
+      <span class="pill" id="pill-mqtt"><span class="dot"></span><span id="pill-mqtt-txt">MQTT: —</span></span>
+      <span class="pill"><span id="last-update">—</span></span>
+    </div>
+  </div>
+
+  <div class="demo-flag" id="demo-flag">DEMO</div>
+
+  <div class="health-banner" id="health-banner">
+    <div class="overall">Salud de la planta: <span id="health-overall">—</span></div>
+    <ul id="health-list"></ul>
+  </div>
+
+  <div class="grid g3">
+    <article class="card" aria-labelledby="h-clima">
+      <h2 id="h-clima">Piedras Negras</h2>
+      <div class="big"><span id="wx-temp">--</span><small> °C</small></div>
+      <div class="sub" id="wx-cond">—</div>
+      <div class="rows">
+        <div><span>Radiación</span><b class="mono" id="wx-rad">—</b></div>
+        <div><span>Nubosidad</span><b class="mono" id="wx-cloud">—</b></div>
+      </div>
+    </article>
+
+    <article class="card" aria-labelledby="h-malla">
+      <h2 id="h-malla">Malla sombra</h2>
+      <div class="shade-visual" id="shade-visual">—</div>
+      <div class="seg" role="group" aria-label="Malla sombra">
+        <button type="button" id="mode-auto" aria-pressed="true">Automático</button>
+        <button type="button" id="mode-open" aria-pressed="false">Abrir</button>
+        <button type="button" id="mode-close" aria-pressed="false">Cubrir</button>
+      </div>
+    </article>
+
+    <article class="card" aria-labelledby="h-ajustes">
+      <h2 id="h-ajustes">Ajustes</h2>
+      <label class="field"><span>ID dispositivo</span>
+        <input type="text" id="device-id" value="bionet-harvest-01" autocomplete="off" spellcheck="false">
+      </label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" type="button" id="btn-connect">Conectar</button>
+        <button class="btn warn" type="button" id="btn-demo" aria-pressed="false">Demo</button>
+      </div>
+      <div class="rows">
+        <div><span>WiFi (RSSI)</span><b class="mono" id="rssi">—</b></div>
+        <div><span>Lecturas</span><b class="mono" id="msg-count">0</b></div>
+        <div><span>Bomba</span><b id="v-pump">—</b></div>
+      </div>
+      <label class="field" style="margin-top:12px"><span>Radiación máx (W/m²)</span><input type="number" id="th-rad" value="500" min="50" max="1200" step="10"></label>
+      <label class="field"><span>Temp. máx (°C)</span><input type="number" id="th-temp" value="36" min="20" max="50" step="0.5"></label>
+      <label class="field" style="margin-bottom:0"><span>Umbral riego (%)</span><input type="number" id="th-moist" value="35" min="5" max="90" step="1"></label>
+    </article>
+  </div>
+
+  <div class="grid g2" style="margin-top:14px">
+    <article class="card health-card">
+      <div class="chart-head"><h3>Humedad suelo</h3><span class="badge" id="st-moist">—</span></div>
+      <div class="big"><span id="v-moist">—</span><small> %</small></div>
+      <canvas class="chart" id="ch-moist" height="160" aria-label="Humedad del suelo"></canvas>
+      <label class="range-edit">Óptimo
+        <input type="number" id="rg-moist-min" value="40" min="0" max="100" step="1" aria-label="Mínimo"> –
+        <input type="number" id="rg-moist-max" value="70" min="0" max="100" step="1" aria-label="Máximo"> %
+      </label>
+    </article>
+
+    <article class="card health-card">
+      <div class="chart-head"><h3>Temp. aire</h3><span class="badge" id="st-temp">—</span></div>
+      <div class="big"><span id="v-temp">—</span><small> °C</small></div>
+      <canvas class="chart" id="ch-temp" height="160" aria-label="Temperatura del aire"></canvas>
+      <label class="range-edit">Óptimo
+        <input type="number" id="rg-temp-min" value="20" min="-10" max="60" step="0.5" aria-label="Mínimo"> –
+        <input type="number" id="rg-temp-max" value="32" min="-10" max="60" step="0.5" aria-label="Máximo"> °C
+      </label>
+    </article>
+
+    <article class="card health-card">
+      <div class="chart-head"><h3>Humedad aire</h3><span class="badge" id="st-hum">—</span></div>
+      <div class="big"><span id="v-hum">—</span><small> %</small></div>
+      <canvas class="chart" id="ch-hum" height="160" aria-label="Humedad del aire"></canvas>
+      <label class="range-edit">Óptimo
+        <input type="number" id="rg-hum-min" value="50" min="0" max="100" step="1" aria-label="Mínimo"> –
+        <input type="number" id="rg-hum-max" value="70" min="0" max="100" step="1" aria-label="Máximo"> %
+      </label>
+    </article>
+
+    <article class="card health-card">
+      <div class="chart-head"><h3>pH suelo</h3><span class="badge" id="st-ph">—</span></div>
+      <div class="big"><span id="v-ph">—</span></div>
+      <canvas class="chart" id="ch-ph" height="160" aria-label="pH del suelo"></canvas>
+      <label class="range-edit">Óptimo
+        <input type="number" id="rg-ph-min" value="6.0" min="0" max="14" step="0.1" aria-label="Mínimo"> –
+        <input type="number" id="rg-ph-max" value="7.0" min="0" max="14" step="0.1" aria-label="Máximo">
+      </label>
+    </article>
+
+    <article class="card health-card">
+      <div class="chart-head"><h3>Luz</h3><span class="badge" id="st-light">—</span></div>
+      <div class="big"><span id="v-light">—</span><small> lux</small></div>
+      <canvas class="chart" id="ch-light" height="160" aria-label="Luz"></canvas>
+      <label class="range-edit">Óptimo
+        <input type="number" id="rg-light-min" value="8000" min="0" max="60000" step="500" aria-label="Mínimo"> –
+        <input type="number" id="rg-light-max" value="35000" min="0" max="60000" step="500" aria-label="Máximo"> lux
+      </label>
+    </article>
+
+    <article class="card health-card">
+      <div class="chart-head"><h3>Temp. suelo</h3><span class="badge" id="st-soiltemp">—</span></div>
+      <div class="big"><span id="v-soiltemp">—</span><small> °C</small></div>
+      <canvas class="chart" id="ch-soiltemp" height="160" aria-label="Temperatura del suelo"></canvas>
+      <label class="range-edit">Óptimo
+        <input type="number" id="rg-soil-min" value="20" min="-10" max="60" step="0.5" aria-label="Mínimo"> –
+        <input type="number" id="rg-soil-max" value="28" min="-10" max="60" step="0.5" aria-label="Máximo"> °C
+      </label>
+    </article>
+  </div>
+
+  <div id="cells-wrap" style="margin-top:14px;display:none">
+    <div class="grid g4" id="cells-grid"></div>
+  </div>
+
+  <details class="code-box">
+    <summary>Código ESP32</summary>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0">
+      <button class="btn" type="button" id="btn-copy">Copiar</button>
+      <button class="btn secondary" type="button" id="btn-download">Descargar .ino</button>
+      <span class="sub" id="copy-msg" role="status"></span>
+    </div>
+    <pre class="code" id="esp32-pre"></pre>
+  </details>
+</div>
+
+<script type="text/plain" id="esp32-code">#include <WiFi.h>
+#include <PubSubClient.h>
+#include <ESP32Servo.h>
+#include <DHT.h>
+
+const char* WIFI_SSID = "TU_RED_WIFI";
+const char* WIFI_PASS = "TU_CONTRASENA";
+const char* DEVICE_ID = "bionet-harvest-01";
+
+const char* MQTT_HOST = "broker.hivemq.com";
+const int   MQTT_PORT = 1883;
+
+#define PIN_MOIST 34
+#define PIN_LDR   35
+#define PIN_DHT   15
+#define PIN_SERVO 13
+#define PIN_PUMP  26
+#define MOIST_DRY 3200
+#define MOIST_WET 1400
+#define IRRIGATION_THRESHOLD 35
+
+String topicStatus, topicCmd, topicAvail;
+WiFiClient net;
+PubSubClient mqtt(net);
+Servo shadeServo;
+DHT dht(PIN_DHT, DHT22);
+
+int servoPos = 0;
+int servoTarget = 0;
+unsigned long lastServoStep = 0;
+unsigned long lastPublish = 0;
+
+void moveServoStep() {
+  if (servoPos == servoTarget) return;
+  if (millis() - lastServoStep < 15) return;
+  lastServoStep = millis();
+  servoPos += (servoTarget > servoPos) ? 1 : -1;
+  shadeServo.write(servoPos);
+  if (servoPos == servoTarget) shadeServo.detach();
+}
+
+void onMessage(char* topic, byte* payload, unsigned int len) {
+  String msg;
+  for (unsigned int i = 0; i < len; i++) msg += (char)payload[i];
+  msg.trim();
+  if (String(topic) == topicCmd) {
+    if (msg == "close") { shadeServo.attach(PIN_SERVO); servoTarget = 90; }
+    if (msg == "open")  { shadeServo.attach(PIN_SERVO); servoTarget = 0; }
+  }
+}
+
+void connectMQTT() {
+  mqtt.setServer(MQTT_HOST, MQTT_PORT);
+  mqtt.setCallback(onMessage);
+  String clientId = "bionet-esp32-" + String(DEVICE_ID);
+  if (mqtt.connect(clientId.c_str(), topicAvail.c_str(), 1, true, "offline")) {
+    mqtt.publish(topicAvail.c_str(), "online", true);
+    mqtt.subscribe(topicCmd.c_str(), 1);
+  }
+}
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(PIN_PUMP, OUTPUT);
+  digitalWrite(PIN_PUMP, LOW);
+  dht.begin();
+  shadeServo.attach(PIN_SERVO);
+  shadeServo.write(0);
+  delay(500);
+  shadeServo.detach();
+
+  topicStatus = "bionet/" + String(DEVICE_ID) + "/status";
+  topicCmd    = "bionet/" + String(DEVICE_ID) + "/cmd";
+  topicAvail  = "bionet/" + String(DEVICE_ID) + "/availability";
+
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  while (WiFi.status() != WL_CONNECTED) delay(500);
+  connectMQTT();
+}
+
+void loop() {
+  if (WiFi.status() != WL_CONNECTED) { WiFi.reconnect(); delay(1000); }
+  if (!mqtt.connected()) { connectMQTT(); delay(500); }
+  mqtt.loop();
+  moveServoStep();
+
+  if (millis() - lastPublish >= 5000) {
+    lastPublish = millis();
+    int raw = analogRead(PIN_MOIST);
+    float moist = constrain(map(raw, MOIST_DRY, MOIST_WET, 0, 100), 0, 100);
+    float airT = dht.readTemperature();
+    float airH = dht.readHumidity();
+    int lightRaw = analogRead(PIN_LDR);
+    float lux = map(lightRaw, 0, 4095, 0, 50000);
+
+    bool pump = (moist < IRRIGATION_THRESHOLD);
+    digitalWrite(PIN_PUMP, pump ? HIGH : LOW);
+
+    String json = "{";
+    json += "\"shade\":\"" + String(servoTarget >= 90 ? "closed" : "open") + "\",";
+    json += "\"rssi\":" + String(WiFi.RSSI()) + ",";
+    json += "\"soilMoisture\":" + String(moist, 1) + ",";
+    if (!isnan(airT)) json += "\"airTemp\":" + String(airT, 1) + ",";
+    if (!isnan(airH)) json += "\"airHumidity\":" + String(airH, 1) + ",";
+    json += "\"light\":" + String(lux, 0) + ",";
+    json += "\"pump\":" + String(pump ? "true" : "false");
+    json += "}";
+    mqtt.publish(topicStatus.c_str(), json.c_str());
+    Serial.println(json);
+  }
+}
+</script>
+
+<script src="https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js"></script>
+<script>
+(function(){
+"use strict";
+var $ = function(id){ return document.getElementById(id); };
+function setText(id, txt){ var el=$(id); if(el) el.textContent=txt; }
+
+var state = {
+  deviceId: "bionet-harvest-01", client: null, brokerUp: false, espOnline: false,
+  lastMsgAt: 0, msgCount: 0, reportedShade: null, desiredShade: null,
+  mode: "auto", lastAutoChange: 0, lastCmdSent: 0, lastCmdValue: null,
+  demo: false, demoTimer: null, weather: null,
+  history: { moist: [], temp: [], ph: [], light: [], hum: [], soilTemp: [] },
+  filtered: { moist: [], temp: [], ph: [], light: [], hum: [], soilTemp: [] },
+  latest: { moist: null, temp: null, ph: null, light: null, hum: null, soilTemp: null, pump: null }
+};
+var MAXHIST = 120;
+function log(){}
+
+function setPill(el, txtEl, mode, text){
+  if(!el) return;
+  el.className = "pill" + (mode ? " " + mode : "");
+  txtEl.textContent = text;
+}
+function refreshStatusUI(){
+  if (state.espOnline) setPill($("pill-esp"), $("pill-esp-txt"), "on", "ESP32: conectado");
+  else if (state.lastMsgAt) setPill($("pill-esp"), $("pill-esp-txt"), "off", "ESP32: desconectado");
+  else setPill($("pill-esp"), $("pill-esp-txt"), "", "ESP32: —");
+  if (state.brokerUp) setPill($("pill-mqtt"), $("pill-mqtt-txt"), "on", "MQTT: conectado");
+  else setPill($("pill-mqtt"), $("pill-mqtt-txt"), "off", "MQTT: —");
+  if (state.lastMsgAt){
+    var s = Math.max(0, Math.round((Date.now() - state.lastMsgAt)/1000));
+    setText("last-update", "hace " + s + " s");
+  }
+  setText("msg-count", state.msgCount);
+}
+setInterval(function(){
+  if (state.lastMsgAt && state.espOnline && (Date.now() - state.lastMsgAt > 20000)) state.espOnline = false;
+  refreshStatusUI();
+}, 1000);
+
+function getRange(key){
+  var map = {
+    moist: ["rg-moist-min","rg-moist-max",40,70], temp: ["rg-temp-min","rg-temp-max",20,32],
+    hum: ["rg-hum-min","rg-hum-max",50,70], ph: ["rg-ph-min","rg-ph-max",6.0,7.0],
+    light: ["rg-light-min","rg-light-max",8000,35000], soilTemp: ["rg-soil-min","rg-soil-max",20,28]
+  };
+  var m = map[key]; if(!m) return {min:0,max:1};
+  var mn = parseFloat(($(m[0])||{}).value), mx = parseFloat(($(m[1])||{}).value);
+  if (isNaN(mn)) mn = m[2]; if (isNaN(mx)) mx = m[3];
+  if (mx < mn){ var tmp=mn; mn=mx; mx=tmp; }
+  return {min:mn, max:mx};
+}
+function attentionMargin(key, range){
+  if (key==="ph") return 0.5;
+  if (key==="temp" || key==="soilTemp") return 4;
+  if (key==="hum" || key==="moist") return 10;
+  if (key==="light") return Math.max(2000, (range.max-range.min)*0.25);
+  return (range.max-range.min)*0.25;
+}
+function statusFor(key, value){
+  if (value===null || value===undefined || isNaN(value)) return {level:"nodata", label:"—"};
+  var r = getRange(key);
+  if (value>=r.min && value<=r.max) return {level:"bien", label:"Bien"};
+  var m = attentionMargin(key, r);
+  if (value>=r.min-m && value<=r.max+m) return {level:"atencion", label:"Atención"};
+  return {level:"mal", label:"Mal"};
+}
+function setBadge(id, st){
+  var el = $(id); if(!el) return;
+  el.className = "badge" + (st.level==="bien"?" bien":st.level==="atencion"?" atencion":st.level==="mal"?" mal":"");
+  el.textContent = st.label;
+}
+function fmtNum(v, d){ return (v === null || v === undefined || isNaN(v)) ? "—" : Number(v).toFixed(d); }
+
+function updateDiagnosis(){
+  var L = state.latest;
+  var keys = ["moist","temp","hum","ph","light","soilTemp"];
+  var statuses = {};
+  keys.forEach(function(k){ statuses[k]=statusFor(k, L[k]); });
+  setBadge("st-moist", statuses.moist); setBadge("st-temp", statuses.temp);
+  setBadge("st-hum", statuses.hum); setBadge("st-ph", statuses.ph);
+  setBadge("st-light", statuses.light); setBadge("st-soiltemp", statuses.soilTemp);
+
+  var issues = [];
+  if (L.moist!=null && statuses.moist.level!=="bien")
+    issues.push(L.moist < getRange("moist").min ? "Falta agua ("+fmtNum(L.moist,0)+"%)" : "Exceso de agua ("+fmtNum(L.moist,0)+"%)");
+  if (L.temp!=null && statuses.temp.level!=="bien")
+    issues.push(L.temp>=36 ? "Mucho calor ("+fmtNum(L.temp,1)+" °C)" : (L.temp>getRange("temp").max ? "Calor ("+fmtNum(L.temp,1)+" °C)" : "Frío ("+fmtNum(L.temp,1)+" °C)"));
+  if (L.hum!=null && statuses.hum.level!=="bien")
+    issues.push(L.hum < getRange("hum").min ? "Aire seco ("+fmtNum(L.hum,0)+"%)" : "Aire húmedo ("+fmtNum(L.hum,0)+"%)");
+  if (L.ph!=null && statuses.ph.level!=="bien")
+    issues.push(L.ph < getRange("ph").min ? "pH ácido ("+fmtNum(L.ph,1)+")" : "pH alcalino ("+fmtNum(L.ph,1)+")");
+  if (L.light!=null && statuses.light.level!=="bien")
+    issues.push(L.light < getRange("light").min ? "Falta luz" : "Sol fuerte");
+  if (L.soilTemp!=null && statuses.soilTemp.level!=="bien")
+    issues.push(L.soilTemp>getRange("soilTemp").max ? "Suelo caliente ("+fmtNum(L.soilTemp,1)+" °C)" : "Suelo frío ("+fmtNum(L.soilTemp,1)+" °C)");
+  if (state.weather && state.weather.radiation>=500) issues.push("Radiación alta");
+
+  var banner = $("health-banner"), overall = $("health-overall"), list = $("health-list");
+  if (!banner) return;
+  var anyData = keys.some(function(k){ return L[k]!=null; });
+  var hasMal = keys.some(function(k){ return statuses[k].level==="mal"; });
+  var hasAtt = keys.some(function(k){ return statuses[k].level==="atencion"; });
+  list.innerHTML = "";
+  function addLi(txt){ var li=document.createElement("li"); li.textContent=txt; list.appendChild(li); }
+  if (!anyData){ banner.className="health-banner"; overall.textContent="—"; }
+  else if (hasMal){ banner.className="health-banner mal"; overall.textContent="Mal"; issues.forEach(addLi); }
+  else if (hasAtt){ banner.className="health-banner atencion"; overall.textContent="Atención"; issues.forEach(addLi); }
+  else { banner.className="health-banner bien"; overall.textContent="Bien"; }
+}
+
+function cssVar(name){ return getComputedStyle(document.body).getPropertyValue(name).trim(); }
+function drawChart(canvasId, raw, filtered, color, range, fmt){
+  var cv = $(canvasId); if (!cv) return;
+  var dpr = window.devicePixelRatio || 1;
+  var w = cv.clientWidth, h = cv.clientHeight || 160;
+  if (cv.width !== Math.round(w*dpr)){ cv.width = Math.round(w*dpr); cv.height = Math.round(h*dpr); }
+  var ctx = cv.getContext("2d");
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,w,h);
+  var all = raw.concat(filtered, [range.min, range.max]);
+  var min, max;
+  if (all.length){ min = Math.min.apply(null, all); max = Math.max.apply(null, all);
+    if (max-min < 0.001){ max+=0.5; min-=0.5; }
+    var pad = (max-min)*0.12; max+=pad; min-=pad;
+  } else { min=0; max=1; }
+  function X(i){ return i / (MAXHIST - 1) * (w - 8) + 4; }
+  function Y(v){ return h - 10 - (v - min) / (max - min) * (h - 20); }
+  var yTop = Y(range.max), yBot = Y(range.min);
+  ctx.fillStyle = "#3d9a5f"; ctx.globalAlpha = 0.16;
+  ctx.fillRect(0, yTop, w, Math.max(2, yBot-yTop));
+  ctx.globalAlpha = 1;
+  ctx.strokeStyle = "#3d9a5f"; ctx.globalAlpha = 0.45; ctx.setLineDash([4,4]); ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0,yTop); ctx.lineTo(w,yTop); ctx.moveTo(0,yBot); ctx.lineTo(w,yBot); ctx.stroke();
+  ctx.setLineDash([]); ctx.globalAlpha = 1;
+  ctx.strokeStyle = cssVar("--line"); ctx.lineWidth = 1;
+  for (var g=1; g<4; g++){ var y = h*g/4; ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+  if (raw.length < 2){
+    ctx.fillStyle = cssVar("--muted"); ctx.font = "14px Manrope, sans-serif";
+    ctx.fillText("—", 10, h/2);
+    return;
+  }
+  ctx.beginPath();
+  raw.forEach(function(v,i){ var x=X(i+(MAXHIST-raw.length)), yy=Y(v); if(i===0) ctx.moveTo(x,yy); else ctx.lineTo(x,yy); });
+  ctx.strokeStyle = color; ctx.globalAlpha = 0.32; ctx.lineWidth = 1; ctx.lineJoin="round"; ctx.stroke(); ctx.globalAlpha = 1;
+  ctx.beginPath();
+  filtered.forEach(function(v,i){ var x=X(i+(MAXHIST-filtered.length)), yy=Y(v); if(i===0) ctx.moveTo(x,yy); else ctx.lineTo(x,yy); });
+  ctx.strokeStyle = color; ctx.lineWidth = 2.6; ctx.lineJoin = "round"; ctx.lineCap="round"; ctx.stroke();
+  ctx.fillStyle = cssVar("--muted"); ctx.font = "11px 'JetBrains Mono', monospace";
+  ctx.fillText(fmt(max), 6, 14);
+  ctx.fillText(fmt(min), 6, h - 4);
+  var lastF = filtered[filtered.length-1];
+  ctx.beginPath(); ctx.arc(X(MAXHIST-1), Y(lastF), 4, 0, Math.PI*2); ctx.fillStyle = color; ctx.fill();
+  ctx.beginPath(); ctx.arc(X(MAXHIST-1), Y(lastF), 4, 0, Math.PI*2); ctx.strokeStyle="#fff"; ctx.lineWidth=1.5; ctx.stroke();
+}
+function drawAll(){
+  drawChart("ch-moist", state.history.moist, state.filtered.moist, "#22703f", getRange("moist"), function(v){ return v.toFixed(0)+"%"; });
+  drawChart("ch-temp",  state.history.temp,  state.filtered.temp,  "#c47b12", getRange("temp"), function(v){ return v.toFixed(1)+"°"; });
+  drawChart("ch-hum",   state.history.hum,   state.filtered.hum,   "#1d7a6f", getRange("hum"), function(v){ return v.toFixed(0)+"%"; });
+  drawChart("ch-ph",    state.history.ph,    state.filtered.ph,    "#1d5f8a", getRange("ph"), function(v){ return v.toFixed(1); });
+  drawChart("ch-light", state.history.light, state.filtered.light, "#b7791f", getRange("light"), function(v){ return Math.round(v)+""; });
+  drawChart("ch-soiltemp", state.history.soilTemp, state.filtered.soilTemp, "#7a4a21", getRange("soilTemp"), function(v){ return v.toFixed(1)+"°"; });
+}
+window.addEventListener("resize", drawAll);
+["rg-moist-min","rg-moist-max","rg-temp-min","rg-temp-max","rg-hum-min","rg-hum-max","rg-ph-min","rg-ph-max","rg-light-min","rg-light-max","rg-soil-min","rg-soil-max"].forEach(function(id){
+  var el=$(id); if(el) el.addEventListener("change", function(){ drawAll(); updateDiagnosis(); });
+});
+
+var EMA_ALPHA = 0.3;
+function pushHist(key, v){
+  if (v === null || v === undefined || isNaN(v)) return;
+  var val = Number(v);
+  var a = state.history[key]; a.push(val); if (a.length > MAXHIST) a.shift();
+  var f = state.filtered[key];
+  var prev = f.length ? f[f.length-1] : val;
+  f.push(EMA_ALPHA*val + (1-EMA_ALPHA)*prev);
+  if (f.length > MAXHIST) f.shift();
+  state.latest[key] = val;
+}
+function renderReading(d, isDemo){
+  if (typeof d.soilMoisture === "number") setText("v-moist", fmtNum(d.soilMoisture,0));
+  if (typeof d.airTemp === "number") setText("v-temp", fmtNum(d.airTemp,1));
+  if (typeof d.ph === "number") setText("v-ph", fmtNum(d.ph,1));
+  if (typeof d.light === "number") setText("v-light", Math.round(d.light).toLocaleString("es-MX"));
+  if (typeof d.airHumidity === "number") setText("v-hum", fmtNum(d.airHumidity,0));
+  if (typeof d.soilTemp === "number") setText("v-soiltemp", fmtNum(d.soilTemp,1));
+  if (typeof d.pump === "boolean"){ setText("v-pump", d.pump ? "Encendida" : "Apagada"); state.latest.pump = d.pump; }
+  if (typeof d.rssi === "number") setText("rssi", d.rssi + " dBm");
+  pushHist("moist", d.soilMoisture); pushHist("temp", d.airTemp); pushHist("ph", d.ph); pushHist("light", d.light);
+  pushHist("hum", d.airHumidity); pushHist("soilTemp", d.soilTemp);
+  drawAll(); updateDiagnosis();
+  if (d.shade === "open" || d.shade === "closed"){
+    state.reportedShade = d.shade; renderShade(); checkMismatch();
+  }
+  if (Array.isArray(d.cells) && d.cells.length){
+    var wrap = $("cells-wrap"), grid = $("cells-grid");
+    wrap.style.display = "block"; grid.innerHTML = "";
+    d.cells.forEach(function(c, i){
+      var div = document.createElement("div"); div.className = "cell-mini";
+      var b = document.createElement("b"); b.textContent = "Celda " + (c.name != null ? String(c.name) : String(i+1));
+      var v = document.createElement("span"); v.className = "v";
+      v.textContent = (typeof c.moisture === "number" ? fmtNum(c.moisture,0) + " %" : "—");
+      div.appendChild(b); div.appendChild(v); grid.appendChild(div);
+    });
+  }
+  refreshStatusUI();
+}
+
+function renderShade(){
+  var viz = $("shade-visual"); if(!viz) return;
+  if (state.reportedShade === "open"){ viz.className = "shade-visual shade-open"; viz.textContent = "Abierta"; }
+  else if (state.reportedShade === "closed"){ viz.className = "shade-visual shade-closed"; viz.textContent = "Cubierta"; }
+  else { viz.className = "shade-visual"; viz.textContent = "—"; }
+}
+function sendCmd(targetState, why){
+  var wire = (targetState === "closed") ? "close" : "open";
+  state.desiredShade = targetState; renderShade();
+  if (state.demo && !state.espOnline){
+    setTimeout(function(){ renderReading({ shade: targetState }, true); }, 1200);
+    state.lastCmdSent = Date.now(); state.lastCmdValue = wire; return;
+  }
+  if (!state.client || !state.brokerUp) return;
+  state.client.publish("bionet/" + state.deviceId + "/cmd", wire, { qos: 1, retain: true });
+  state.lastCmdSent = Date.now(); state.lastCmdValue = wire;
+}
+function checkMismatch(){
+  if (!state.desiredShade || !state.reportedShade) return;
+  if (state.desiredShade !== state.reportedShade && (Date.now() - state.lastCmdSent > 12000)) sendCmd(state.desiredShade, "auto");
+}
+setInterval(checkMismatch, 10000);
+
+function evaluateAuto(){
+  if (state.mode !== "auto" || !state.weather) return;
+  var w = state.weather, target;
+  var code = w.code;
+  var isRain = (code >= 51 && code <= 67) || (code >= 80 && code <= 99);
+  if (!w.isDay) target = "open";
+  else if (isRain) target = "open";
+  else if (w.radiation >= Number($("th-rad").value || 500)) target = "closed";
+  else if (w.temp >= Number($("th-temp").value || 36)) target = "closed";
+  else target = "open";
+  if (target === state.desiredShade) return;
+  var since = Date.now() - state.lastAutoChange;
+  if (state.lastAutoChange && since < 10*60*1000) return;
+  state.lastAutoChange = Date.now();
+  sendCmd(target, "auto");
+}
+function setMode(m){
+  state.mode = m; syncModeButtons();
+  if (m === "auto") evaluateAuto();
+  if (m === "open") sendCmd("open", "manual");
+  if (m === "close") sendCmd("closed", "manual");
+}
+$("mode-auto").addEventListener("click", function(){ setMode("auto"); });
+$("mode-open").addEventListener("click", function(){ setMode("open"); });
+$("mode-close").addEventListener("click", function(){ setMode("close"); });
+function syncModeButtons(){
+  $("mode-auto").setAttribute("aria-pressed", state.mode === "auto" ? "true" : "false");
+  $("mode-open").setAttribute("aria-pressed", state.mode === "open" ? "true" : "false");
+  $("mode-close").setAttribute("aria-pressed", state.mode === "close" ? "true" : "false");
+}
+$("th-rad").addEventListener("change", evaluateAuto);
+$("th-temp").addEventListener("change", evaluateAuto);
+
+var WMO = {0:"Despejado",1:"Casi despejado",2:"Parc. nublado",3:"Nublado",45:"Niebla",48:"Niebla",51:"Llovizna",53:"Llovizna",55:"Llovizna",61:"Lluvia",63:"Lluvia",65:"Lluvia fuerte",71:"Nieve",73:"Nieve",75:"Nieve",80:"Chubascos",81:"Chubascos",82:"Chubascos",95:"Tormenta",96:"Tormenta",99:"Tormenta"};
+function fetchWeather(){
+  var url = "https://api.open-meteo.com/v1/forecast?latitude=28.70&longitude=-100.52&current=temperature_2m,relative_humidity_2m,weather_code,cloud_cover,is_day,shortwave_radiation&daily=sunrise,sunset&timezone=America%2FMonterrey&forecast_days=1";
+  fetch(url).then(function(r){ return r.json(); }).then(function(j){
+    var c = j.current || {};
+    var radiation = (typeof c.shortwave_radiation === "number") ? c.shortwave_radiation : 0;
+    state.weather = { temp: c.temperature_2m, code: c.weather_code, cloud: c.cloud_cover, isDay: c.is_day === 1, radiation: radiation };
+    setText("wx-temp", typeof c.temperature_2m === "number" ? c.temperature_2m.toFixed(1) : "--");
+    setText("wx-cond", WMO[c.weather_code] || "—");
+    setText("wx-rad", Math.round(radiation) + " W/m²");
+    setText("wx-cloud", (c.cloud_cover != null ? c.cloud_cover : "—") + " %");
+    evaluateAuto();
+    updateDiagnosis();
+  }).catch(function(){});
+}
+fetchWeather();
+setInterval(fetchWeather, 10*60*1000);
+
+function connectMQTT(id){
+  state.deviceId = (id || "bionet-harvest-01").trim() || "bionet-harvest-01";
+  if (state.client){ try { state.client.end(true); } catch(e){} state.client = null; }
+  if (typeof mqtt === "undefined"){ setTimeout(function(){ connectMQTT(state.deviceId); }, 10000); return; }
+  var cid = "bionet-web-" + Math.random().toString(16).slice(2, 10);
+  var client = mqtt.connect("wss://broker.hivemq.com:8884/mqtt", {
+    clientId: cid, clean: true, reconnectPeriod: 3000, connectTimeout: 15000, keepalive: 45
+  });
+  state.client = client;
+  client.on("connect", function(){
+    state.brokerUp = true;
+    client.subscribe(["bionet/" + state.deviceId + "/status", "bionet/" + state.deviceId + "/availability"], { qos: 1 });
+    if (state.desiredShade && state.desiredShade !== state.reportedShade) sendCmd(state.desiredShade, "reconexión");
+    refreshStatusUI();
+  });
+  client.on("reconnect", function(){ state.brokerUp = false; refreshStatusUI(); });
+  client.on("offline", function(){ state.brokerUp = false; refreshStatusUI(); });
+  client.on("error", function(){});
+  client.on("message", function(topic, payload){
+    var text = payload.toString();
+    if (topic.endsWith("/availability")){
+      if (text === "offline") state.espOnline = false;
+      refreshStatusUI(); return;
+    }
+    var d;
+    try { d = JSON.parse(text); } catch(e){ return; }
+    if (state.demo) stopDemo();
+    state.espOnline = true; state.lastMsgAt = Date.now(); state.msgCount++;
+    renderReading(d, false);
+  });
+}
+$("btn-connect").addEventListener("click", function(){
+  state.reportedShade = null; state.lastMsgAt = 0; state.msgCount = 0;
+  connectMQTT($("device-id").value);
+  renderShade(); refreshStatusUI();
+});
+
+var demoPhase = Math.random() * 10;
+function demoTick(){
+  demoPhase += 0.35;
+  var now = new Date();
+  var hourF = now.getHours() + now.getMinutes()/60;
+  var daylight = Math.max(0, Math.sin((hourF - 6) / 12 * Math.PI));
+  var d = {
+    soilMoisture: 46 + Math.sin(demoPhase * 0.6) * 14 + Math.random() * 2,
+    airTemp: 27 + daylight * 7 + Math.sin(demoPhase) * 1.2,
+    airHumidity: 52 - daylight * 10 + Math.random() * 3,
+    soilTemp: 24 + daylight * 4 + Math.sin(demoPhase * 0.8) * 0.8,
+    ph: 6.7 + Math.sin(demoPhase * 0.4) * 0.25,
+    light: Math.max(0, daylight * 42000 + Math.random() * 800),
+    rssi: -58 + Math.round(Math.random() * 8 - 4),
+    pump: false,
+    shade: state.reportedShade || "open",
+    cells: [1,2,3,4].map(function(i){ return { name: String(i), moisture: 40 + Math.sin(demoPhase * 0.6 + i) * 13 + Math.random() * 2 }; })
+  };
+  d.pump = d.soilMoisture < Number($("th-moist").value || 35);
+  state.lastMsgAt = Date.now(); state.msgCount++;
+  renderReading(d, true);
+}
+function startDemo(){
+  if (state.demo) return;
+  state.demo = true;
+  $("demo-flag").classList.add("show");
+  $("btn-demo").textContent = "Detener";
+  $("btn-demo").setAttribute("aria-pressed", "true");
+  demoTick();
+  state.demoTimer = setInterval(demoTick, 2000);
+  refreshStatusUI();
+}
+function stopDemo(){
+  if (!state.demo) return;
+  state.demo = false;
+  clearInterval(state.demoTimer); state.demoTimer = null;
+  $("demo-flag").classList.remove("show");
+  $("btn-demo").textContent = "Demo";
+  $("btn-demo").setAttribute("aria-pressed", "false");
+  refreshStatusUI();
+}
+$("btn-demo").addEventListener("click", function(){ state.demo ? stopDemo() : startDemo(); });
+
+var code = $("esp32-code").textContent.replace(/^\n+/, "");
+$("esp32-pre").textContent = code;
+$("btn-copy").addEventListener("click", function(){
+  function done(){ setText("copy-msg", "Copiado"); }
+  if (navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(code).then(done).catch(function(){ fallback(); }); }
+  else fallback();
+  function fallback(){
+    var ta = document.createElement("textarea");
+    ta.value = code; document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); done(); } catch(e){ setText("copy-msg", "—"); }
+    document.body.removeChild(ta);
+  }
+});
+$("btn-download").addEventListener("click", function(){
+  var blob = new Blob([code], { type: "text/plain" });
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "BioNet_Harvest_ESP32.ino";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 2000);
+  setText("copy-msg", "Descargado");
+});
+
+connectMQTT(state.deviceId);
+renderShade();
+drawAll();
+updateDiagnosis();
+refreshStatusUI();
+})();
+</script>
+</body>
+</html>

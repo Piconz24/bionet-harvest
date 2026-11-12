@@ -9,20 +9,45 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script>
+try{var t=localStorage.getItem("bionet-theme");if(t!=="blanco"&&t!=="oscuro"&&t!=="verde")t="blanco";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","blanco");}
+</script>
 <style>
-:root{
+:root[data-theme="blanco"],:root:not([data-theme]){
+  color-scheme:light;
+  --bg:#fbfbf9; --surface:#ffffff; --surface2:#f1f1ee; --ink:#0b0b0b; --muted:#5d5d5d;
+  --line:#e2e2de; --green:#1e7a3c; --green-dark:#0b0b0b; --leaf:#2f9e5f;
+  --amber:#b06f0a; --amber-bg:#fdf3e0; --red:#b3372a; --red-bg:#fdecea;
+  --ok-bg:#e7f5ea; --shadow:0 1px 2px rgba(0,0,0,.05),0 10px 30px rgba(0,0,0,.05);
+  --radius:20px; --gap:18px; --card-pad:22px;
+  --btn-bg:linear-gradient(135deg,#0a0a0a,#3d3d3d);
+  --chart-zone:#2f9e5f;
+  --c-moist:#141414; --c-temp:#141414; --c-hum:#141414; --c-ph:#141414; --c-light:#141414; --c-soil:#141414;
+  --code-bg:#0c0c0c; --code-ink:#e8e8e8;
+}
+:root[data-theme="verde"]{
+  color-scheme:light;
   --bg:#f2f5ef; --surface:#ffffff; --surface2:#e9efe4; --ink:#17251c; --muted:#5a6b5e;
   --line:#d5ddcf; --green:#22703f; --green-dark:#174c2b; --leaf:#3d9a5f;
   --amber:#c47b12; --amber-bg:#fdf1da; --red:#b3372a; --red-bg:#fbe7e3;
   --ok-bg:#e2f2e4; --shadow:0 1px 3px rgba(23,37,28,.08),0 8px 24px rgba(23,37,28,.06);
+  --radius:16px; --gap:14px; --card-pad:18px;
+  --btn-bg:linear-gradient(135deg,#22703f,#3d9a5f);
+  --chart-zone:#3d9a5f;
+  --c-moist:#22703f; --c-temp:#c47b12; --c-hum:#1d7a6f; --c-ph:#1d5f8a; --c-light:#b7791f; --c-soil:#7a4a21;
+  --code-bg:#1c2a1e; --code-ink:#d8ecd8;
 }
-@media (prefers-color-scheme: dark){
-  :root{
-    --bg:#10160f; --surface:#1a231a; --surface2:#232e22; --ink:#e8f0e6; --muted:#a3b5a2;
-    --line:#33402f; --green:#5cc07c; --green-dark:#8fd6a5; --leaf:#4fae6d;
-    --amber:#e8a83e; --amber-bg:#3a2d12; --red:#e07a6c; --red-bg:#3d201b;
-    --ok-bg:#1d3320; --shadow:0 1px 3px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.3);
-  }
+:root[data-theme="oscuro"]{
+  color-scheme:dark;
+  --bg:#10160f; --surface:#1a231a; --surface2:#232e22; --ink:#e8f0e6; --muted:#a3b5a2;
+  --line:#33402f; --green:#5cc07c; --green-dark:#8fd6a5; --leaf:#4fae6d;
+  --amber:#e8a83e; --amber-bg:#3a2d12; --red:#e07a6c; --red-bg:#3d201b;
+  --ok-bg:#1d3320; --shadow:0 1px 3px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.3);
+  --radius:14px; --gap:14px; --card-pad:18px;
+  --btn-bg:#22703f;
+  --chart-zone:#4fae6d;
+  --c-moist:#5cc07c; --c-temp:#e8a83e; --c-hum:#4fc3b5; --c-ph:#6db3e8; --c-light:#e8c85a; --c-soil:#d29a6b;
+  --code-bg:#0e140d; --code-ink:#cfe8cf;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:"Manrope",system-ui,sans-serif;line-height:1.4}
@@ -40,13 +65,13 @@ button,select,input:not([type="checkbox"]){min-height:44px}
 @media (prefers-reduced-motion: reduce){.pill.on .dot{animation:none}}
 .demo-flag{display:none;background:var(--amber);color:#1d1403;font-weight:800;border-radius:10px;padding:8px 14px;margin-bottom:14px;font-size:14px;text-align:center;letter-spacing:.08em}
 .demo-flag.show{display:block}
-.grid{display:grid;gap:14px}
+.grid{display:grid;gap:var(--gap)}
 .g3{grid-template-columns:repeat(3,1fr)}
 .g2{grid-template-columns:repeat(2,1fr)}
 .g4{grid-template-columns:repeat(4,1fr)}
 @media (max-width:900px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:560px){.g3,.g4,.g2{grid-template-columns:1fr}}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:var(--card-pad);box-shadow:var(--shadow)}
 .card h2{margin:0 0 10px;font-size:17px;font-weight:800}
 .card h3{margin:0;font-size:15px;font-weight:800}
 .big{font-size:40px;font-weight:800;line-height:1;letter-spacing:-.02em}
@@ -60,8 +85,8 @@ button,select,input:not([type="checkbox"]){min-height:44px}
 .shade-closed{background:var(--surface2);color:var(--green-dark)}
 .seg{display:flex;gap:6px;flex-wrap:wrap}
 .seg button{flex:1 1 30%;min-width:80px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:10px 6px;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
-.seg button[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:#fff}
-.btn{display:inline-flex;align-items:center;justify-content:center;border:none;border-radius:10px;padding:10px 16px;font:inherit;font-weight:800;cursor:pointer;background:var(--green);color:#fff}
+.seg button[aria-pressed="true"]{background:var(--btn-bg);border-color:transparent;color:#fff}
+.btn{display:inline-flex;align-items:center;justify-content:center;border:none;border-radius:10px;padding:10px 16px;font:inherit;font-weight:800;cursor:pointer;background:var(--btn-bg);color:#fff}
 .btn.secondary{background:var(--surface2);color:var(--ink);border:1px solid var(--line)}
 .btn.warn{background:var(--amber);color:#1d1403}
 label.field{display:block;font-size:13px;font-weight:700;margin-bottom:10px}
@@ -69,7 +94,7 @@ label.field span{display:block;color:var(--muted);font-weight:600;margin-bottom:
 input[type="text"],input[type="number"]{width:100%;padding:9px 11px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font:inherit}
 canvas.chart{width:100%;height:150px;display:block}
 .chart-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
-.health-banner{border-radius:14px;padding:18px;border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow);margin-bottom:14px}
+.health-banner{border-radius:var(--radius);padding:var(--card-pad);border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow);margin-bottom:14px}
 .health-banner .overall{font-size:clamp(24px,4vw,32px);font-weight:800;line-height:1.1}
 .health-banner.bien{background:var(--ok-bg);border-color:var(--leaf)}
 .health-banner.atencion{background:var(--amber-bg);border-color:var(--amber)}
@@ -86,10 +111,18 @@ canvas.chart{width:100%;height:150px;display:block}
 .cell-mini{background:var(--surface2);border-radius:12px;padding:12px 14px}
 .cell-mini b{display:block;font-size:14px}
 .cell-mini .v{font-size:24px;font-weight:800}
-details.code-box{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow)}
+details.code-box{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow)}
 details.code-box summary{font-size:17px;font-weight:800;cursor:pointer;min-height:44px;display:flex;align-items:center}
-pre.code{background:#1c2a1e;color:#d8ecd8;border-radius:12px;padding:14px;overflow:auto;font-size:12.5px;line-height:1.55;max-height:520px}
+pre.code{background:var(--code-bg);color:var(--code-ink);border-radius:12px;padding:14px;overflow:auto;font-size:12.5px;line-height:1.55;max-height:520px}
 .sub{color:var(--muted);font-size:13px}
+:root[data-theme="blanco"] .card,:root[data-theme="blanco"] .health-banner,:root[data-theme="blanco"] details.code-box{
+  border:1.5px solid transparent;
+  background:linear-gradient(var(--surface),var(--surface)) padding-box,linear-gradient(150deg,#050505,#a8a8a8 45%,#1c1c1c) border-box;
+}
+:root[data-theme="blanco"] .health-banner.bien{background:linear-gradient(var(--ok-bg),var(--ok-bg)) padding-box,linear-gradient(150deg,#050505,#a8a8a8 45%,#1c1c1c) border-box}
+:root[data-theme="blanco"] .health-banner.atencion{background:linear-gradient(var(--amber-bg),var(--amber-bg)) padding-box,linear-gradient(150deg,#050505,#a8a8a8 45%,#1c1c1c) border-box}
+:root[data-theme="blanco"] .health-banner.mal{background:linear-gradient(var(--red-bg),var(--red-bg)) padding-box,linear-gradient(150deg,#050505,#a8a8a8 45%,#1c1c1c) border-box}
+:root[data-theme="blanco"] .pill{border:1.5px solid transparent;background:linear-gradient(#ffffff,#ffffff) padding-box,linear-gradient(150deg,#050505,#a8a8a8 45%,#1c1c1c) border-box}
 </style>
 </head>
 <body>
@@ -149,6 +182,12 @@ pre.code{background:#1c2a1e;color:#d8ecd8;border-radius:12px;padding:14px;overfl
       <label class="field" style="margin-top:12px"><span>Radiación máx (W/m²)</span><input type="number" id="th-rad" value="500" min="50" max="1200" step="10"></label>
       <label class="field"><span>Temp. máx (°C)</span><input type="number" id="th-temp" value="36" min="20" max="50" step="0.5"></label>
       <label class="field" style="margin-bottom:0"><span>Umbral riego (%)</span><input type="number" id="th-moist" value="35" min="5" max="90" step="1"></label>
+      <div style="font-size:13px;font-weight:700;margin:14px 0 6px">Estilo</div>
+      <div class="seg" role="group" aria-label="Estilo">
+        <button type="button" id="theme-blanco" aria-pressed="true">2026 Blanco</button>
+        <button type="button" id="theme-oscuro" aria-pressed="false">Oscuro</button>
+        <button type="button" id="theme-verde" aria-pressed="false">Verde</button>
+      </div>
     </article>
   </div>
 
@@ -472,10 +511,10 @@ function drawChart(canvasId, raw, filtered, color, range, fmt){
   function X(i){ return i / (MAXHIST - 1) * (w - 8) + 4; }
   function Y(v){ return h - 10 - (v - min) / (max - min) * (h - 20); }
   var yTop = Y(range.max), yBot = Y(range.min);
-  ctx.fillStyle = "#3d9a5f"; ctx.globalAlpha = 0.16;
+  ctx.fillStyle = cssVar("--chart-zone"); ctx.globalAlpha = 0.16;
   ctx.fillRect(0, yTop, w, Math.max(2, yBot-yTop));
   ctx.globalAlpha = 1;
-  ctx.strokeStyle = "#3d9a5f"; ctx.globalAlpha = 0.45; ctx.setLineDash([4,4]); ctx.lineWidth = 1;
+  ctx.strokeStyle = cssVar("--chart-zone"); ctx.globalAlpha = 0.45; ctx.setLineDash([4,4]); ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(0,yTop); ctx.lineTo(w,yTop); ctx.moveTo(0,yBot); ctx.lineTo(w,yBot); ctx.stroke();
   ctx.setLineDash([]); ctx.globalAlpha = 1;
   ctx.strokeStyle = cssVar("--line"); ctx.lineWidth = 1;
@@ -496,15 +535,15 @@ function drawChart(canvasId, raw, filtered, color, range, fmt){
   ctx.fillText(fmt(min), 6, h - 4);
   var lastF = filtered[filtered.length-1];
   ctx.beginPath(); ctx.arc(X(MAXHIST-1), Y(lastF), 4, 0, Math.PI*2); ctx.fillStyle = color; ctx.fill();
-  ctx.beginPath(); ctx.arc(X(MAXHIST-1), Y(lastF), 4, 0, Math.PI*2); ctx.strokeStyle="#fff"; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.beginPath(); ctx.arc(X(MAXHIST-1), Y(lastF), 4, 0, Math.PI*2); ctx.strokeStyle=cssVar("--surface"); ctx.lineWidth=1.5; ctx.stroke();
 }
 function drawAll(){
-  drawChart("ch-moist", state.history.moist, state.filtered.moist, "#22703f", getRange("moist"), function(v){ return v.toFixed(0)+"%"; });
-  drawChart("ch-temp",  state.history.temp,  state.filtered.temp,  "#c47b12", getRange("temp"), function(v){ return v.toFixed(1)+"°"; });
-  drawChart("ch-hum",   state.history.hum,   state.filtered.hum,   "#1d7a6f", getRange("hum"), function(v){ return v.toFixed(0)+"%"; });
-  drawChart("ch-ph",    state.history.ph,    state.filtered.ph,    "#1d5f8a", getRange("ph"), function(v){ return v.toFixed(1); });
-  drawChart("ch-light", state.history.light, state.filtered.light, "#b7791f", getRange("light"), function(v){ return Math.round(v)+""; });
-  drawChart("ch-soiltemp", state.history.soilTemp, state.filtered.soilTemp, "#7a4a21", getRange("soilTemp"), function(v){ return v.toFixed(1)+"°"; });
+  drawChart("ch-moist", state.history.moist, state.filtered.moist, cssVar("--c-moist"), getRange("moist"), function(v){ return v.toFixed(0)+"%"; });
+  drawChart("ch-temp",  state.history.temp,  state.filtered.temp,  cssVar("--c-temp"), getRange("temp"), function(v){ return v.toFixed(1)+"°"; });
+  drawChart("ch-hum",   state.history.hum,   state.filtered.hum,   cssVar("--c-hum"), getRange("hum"), function(v){ return v.toFixed(0)+"%"; });
+  drawChart("ch-ph",    state.history.ph,    state.filtered.ph,    cssVar("--c-ph"), getRange("ph"), function(v){ return v.toFixed(1); });
+  drawChart("ch-light", state.history.light, state.filtered.light, cssVar("--c-light"), getRange("light"), function(v){ return Math.round(v)+""; });
+  drawChart("ch-soiltemp", state.history.soilTemp, state.filtered.soilTemp, cssVar("--c-soil"), getRange("soilTemp"), function(v){ return v.toFixed(1)+"°"; });
 }
 window.addEventListener("resize", drawAll);
 ["rg-moist-min","rg-moist-max","rg-temp-min","rg-temp-max","rg-hum-min","rg-hum-max","rg-ph-min","rg-ph-max","rg-light-min","rg-light-max","rg-soil-min","rg-soil-max"].forEach(function(id){
@@ -606,6 +645,20 @@ function syncModeButtons(){
 }
 $("th-rad").addEventListener("change", evaluateAuto);
 $("th-temp").addEventListener("change", evaluateAuto);
+
+function applyTheme(t, save){
+  if (t!=="blanco" && t!=="oscuro" && t!=="verde") t = "blanco";
+  document.documentElement.setAttribute("data-theme", t);
+  ["blanco","oscuro","verde"].forEach(function(k){
+    var b = $("theme-"+k); if (b) b.setAttribute("aria-pressed", k===t ? "true" : "false");
+  });
+  if (save){ try { localStorage.setItem("bionet-theme", t); } catch(e){} }
+  drawAll();
+}
+$("theme-blanco").addEventListener("click", function(){ applyTheme("blanco", true); });
+$("theme-oscuro").addEventListener("click", function(){ applyTheme("oscuro", true); });
+$("theme-verde").addEventListener("click", function(){ applyTheme("verde", true); });
+applyTheme(document.documentElement.getAttribute("data-theme") || "blanco", false);
 
 var WMO = {0:"Despejado",1:"Casi despejado",2:"Parc. nublado",3:"Nublado",45:"Niebla",48:"Niebla",51:"Llovizna",53:"Llovizna",55:"Llovizna",61:"Lluvia",63:"Lluvia",65:"Lluvia fuerte",71:"Nieve",73:"Nieve",75:"Nieve",80:"Chubascos",81:"Chubascos",82:"Chubascos",95:"Tormenta",96:"Tormenta",99:"Tormenta"};
 function fetchWeather(){
